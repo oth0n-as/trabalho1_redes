@@ -1,528 +1,225 @@
-{
-  "nbformat": 4,
-  "nbformat_minor": 0,
-  "metadata": {
-    "colab": {
-      "provenance": [],
-      "include_colab_link": true
-    },
-    "kernelspec": {
-      "name": "python3",
-      "display_name": "Python 3"
-    },
-    "language_info": {
-      "name": "python"
-    }
-  },
-  "cells": [
-    {
-      "cell_type": "markdown",
-      "metadata": {
-        "id": "view-in-github",
-        "colab_type": "text"
-      },
-      "source": [
-        "<a href=\"https://colab.research.google.com/github/oth0n-as/trabalho1_redes/blob/main/trabalho_redes_py.py\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
-      ]
-    },
-    {
-      "cell_type": "markdown",
-      "source": [
-        "# Dashboard de Tráfego de Rede (versão Excel)\n",
-        "\n",
-        "#Alunos\n",
-        "01: Othon Flávio Alves de Sales - 2312130178\n",
-        "\n",
-        "02: Mariana Paiva de Souza Moreira - 2312130137\n",
-        "## 📖 Descrição\n",
-        "Este projeto implementa um dashboard para análise de tráfego de rede, originalmente proposto como aplicação web.  \n",
-        "Com base no ajuste permitido pelo professor, a interface cliente foi desenvolvida no **Excel**, utilizando **tabelas dinâmicas e gráficos dinâmicos** para exploração dos dados.\n",
-        "\n",
-        "O sistema recebe como entrada um arquivo **CSV** contendo registros de tráfego de rede (timestamp, IP do cliente, protocolo, bytes e pacotes).  \n",
-        "Esse arquivo pode ser aberto no Excel, onde é possível explorar e visualizar os dados de forma interativa.\n",
-        "\n",
-        "---\n",
-        "\n",
-        "## 🗂 Estrutura do Projeto\n",
-        "- `traffic_data.csv` → Arquivo de entrada com os dados de tráfego de rede.  \n",
-        "- `dashboard.xlsx` → Arquivo Excel com tabelas dinâmicas e gráficos configurados.  \n",
-        "- `relatorio_tecnico.pdf` → Documento explicativo da arquitetura e desafios do projeto.  \n",
-        "\n",
-        "---\n",
-        "\n",
-        "## ⚙️ Como Utilizar\n",
-        "1. Gere ou utilize o arquivo `traffic_data.csv`.  \n",
-        "   - O CSV deve conter as colunas:  \n",
-        "     - **Timestamp**  \n",
-        "     - **Client_IP**  \n",
-        "     - **Protocol**  \n",
-        "     - **Bytes_In**  \n",
-        "     - **Bytes_Out**  \n",
-        "     - **Packets_In**  \n",
-        "     - **Packets_Out**\n",
-        "\n",
-        "2. Abra o arquivo **dashboard.xlsx** no Excel.  \n",
-        "\n",
-        "3. Atualize a tabela dinâmica:  \n",
-        "   - Vá em **Analisar → Atualizar Tudo** para carregar os novos dados do CSV.  \n",
-        "\n",
-        "4. Explore o dashboard:  \n",
-        "   - **Gráfico de barras** → mostra Bytes In/Out agrupados por IP.  \n",
-        "   - **Drill down** → clicando em um IP, o Excel mostra os protocolos usados por aquele cliente.  \n",
-        "   - **Filtros temporais** → utilize segmentações (ou filtros da tabela dinâmica) para analisar por intervalos de tempo.\n",
-        "\n",
-        "---\n",
-        "\n",
-        "## 🔍 Observações\n",
-        "- O sistema foi projetado para trabalhar com **janelas de 5 segundos**. Isso é representado na coluna **Timestamp** do CSV.  \n",
-        "- O Excel já trata automaticamente a exploração dos dados com drill down.  \n",
-        "- Caso queira personalizar as visualizações, basta inserir novos gráficos vinculados às tabelas dinâmicas.\n",
-        "\n"
-      ],
-      "metadata": {
-        "id": "LLiWmbHo74-v"
-      }
-    },
-    {
-      "cell_type": "markdown",
-      "source": [
-        "# Relatório Técnico – Dashboard de Tráfego de Rede (Excel)\n",
-        "\n",
-        "## 1. Arquitetura do Sistema\n",
-        "O sistema foi desenvolvido para analisar o tráfego de rede de um servidor-alvo.  \n",
-        "Com base no ajuste feito pelo professor, a interface cliente foi implementada em **Microsoft Excel**, dispensando a necessidade de frontend e backend web.\n",
-        "\n",
-        "A arquitetura funciona da seguinte forma:\n",
-        "1. O tráfego de rede é capturado e exportado em formato **CSV**, contendo colunas de tempo, IP do cliente, protocolo, bytes e pacotes.  \n",
-        "2. O Excel carrega esse CSV e utiliza **tabelas dinâmicas** para agregar os dados em janelas de tempo de 5 segundos.  \n",
-        "3. Gráficos dinâmicos (barras e pizza) exibem os volumes de tráfego de entrada (Bytes In) e saída (Bytes Out).  \n",
-        "4. O usuário pode realizar **drill down**, clicando em um IP específico para visualizar a distribuição de protocolos.  \n",
-        "\n",
-        "Essa abordagem simplifica o desenvolvimento, mantendo todos os requisitos de análise de dados.\n",
-        "\n",
-        "---\n",
-        "\n",
-        "## 2. Lógica de Agregação\n",
-        "A lógica principal consiste em:\n",
-        "- **Janela de tempo:** cada registro possui um campo **Timestamp**. Os dados são agrupados em blocos de 5 segundos.  \n",
-        "- **Agrupamento por cliente (IP):** soma dos campos **Bytes_In** e **Bytes_Out** para cada cliente.  \n",
-        "- **Drill down por protocolo:** dentro de cada IP, os registros podem ser detalhados pelo campo **Protocol**.  \n",
-        "\n",
-        "As tabelas dinâmicas do Excel implementam automaticamente essas operações de soma e agrupamento.\n",
-        "\n",
-        "---\n",
-        "\n",
-        "## 3. Visualizações\n",
-        "As principais visualizações construídas foram:\n",
-        "- **Gráfico de barras dinâmico** → Bytes In/Out por cliente (IP).  \n",
-        "- **Drill down** → clique em uma coluna para detalhar o tráfego por protocolo.  \n",
-        "- **Filtros temporais** → segmentações permitem selecionar intervalos de tempo.  \n",
-        "- **Gráficos complementares (pizza, linhas)** → oferecem diferentes perspectivas sobre os mesmos dados.  \n",
-        "\n",
-        "Essas visualizações atendem ao requisito de análise interativa do tráfego.\n",
-        "\n",
-        "---\n",
-        "\n",
-        "## 4. Desafios Enfrentados\n",
-        "Durante o desenvolvimento, alguns desafios surgiram:\n",
-        "- **Adaptação do requisito original (web → Excel):** foi necessário replanejar o trabalho para aproveitar os recursos nativos do Excel.  \n",
-        "- **Configuração de gráficos dinâmicos:** enquanto o gráfico de barras se ajustava automaticamente, o gráfico de pizza precisou de ajustes no campo de legenda/valores para exibir corretamente.  \n",
-        "- **Drill down no Excel:** a interação funciona de forma diferente de um sistema web, mas a funcionalidade foi alcançada usando cliques nos elementos da tabela dinâmica.  \n",
-        "\n",
-        "---\n",
-        "\n",
-        "## 5. Conclusão\n",
-        "Mesmo com o ajuste para uso do Excel, o sistema alcançou os objetivos principais:\n",
-        "- Agregar tráfego em janelas de 5 segundos.  \n",
-        "- Exibir gráficos dinâmicos agrupados por IP.  \n",
-        "- Permitir drill down para análise por protocolo.  \n",
-        "- Oferecer filtros temporais para navegação nos dados.  \n",
-        "\n",
-        "Dessa forma, o projeto cumpre os requisitos pedagógicos, proporcionando prática em captura, processamento e análise de dados de rede em formato estruturado.\n"
-      ],
-      "metadata": {
-        "id": "wYS-R_sOdO3G"
-      }
-    },
-    {
-      "cell_type": "code",
-      "source": [
-        "# Instala o pacote de desenvolvimento libpcap que o Scapy precisa\n",
-        "!apt-get update && apt-get install -y libpcap-dev"
-      ],
-      "metadata": {
-        "colab": {
-          "base_uri": "https://localhost:8080/"
-        },
-        "id": "0zBqbsw0UeUe",
-        "outputId": "b516be49-c6b1-43ec-dac7-8d1700d22d1a"
-      },
-      "execution_count": 1,
-      "outputs": [
-        {
-          "output_type": "stream",
-          "name": "stdout",
-          "text": [
-            "\r0% [Working]\r            \rHit:1 https://cli.github.com/packages stable InRelease\n",
-            "\r0% [Connecting to archive.ubuntu.com (185.125.190.83)] [Connecting to security.\r                                                                               \rGet:2 https://cloud.r-project.org/bin/linux/ubuntu jammy-cran40/ InRelease [3,632 B]\n",
-            "\r0% [Waiting for headers] [Waiting for headers] [Waiting for headers] [Waiting f\r                                                                               \rGet:3 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64  InRelease [1,581 B]\n",
-            "\r0% [Waiting for headers] [Waiting for headers] [Waiting for headers] [Connectin\r0% [Waiting for headers] [Waiting for headers] [Waiting for headers] [Connectin\r                                                                               \rGet:4 http://security.ubuntu.com/ubuntu jammy-security InRelease [129 kB]\n",
-            "\r0% [Waiting for headers] [4 InRelease 12.7 kB/129 kB 10%] [Waiting for headers]\r                                                                               \rHit:5 http://archive.ubuntu.com/ubuntu jammy InRelease\n",
-            "Get:6 https://r2u.stat.illinois.edu/ubuntu jammy InRelease [6,555 B]\n",
-            "Get:7 http://archive.ubuntu.com/ubuntu jammy-updates InRelease [128 kB]\n",
-            "Get:8 https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64  Packages [2,064 kB]\n",
-            "Get:9 https://r2u.stat.illinois.edu/ubuntu jammy/main all Packages [9,313 kB]\n",
-            "Hit:10 https://ppa.launchpadcontent.net/deadsnakes/ppa/ubuntu jammy InRelease\n",
-            "Hit:11 https://ppa.launchpadcontent.net/graphics-drivers/ppa/ubuntu jammy InRelease\n",
-            "Get:12 http://security.ubuntu.com/ubuntu jammy-security/main amd64 Packages [3,371 kB]\n",
-            "Get:13 http://archive.ubuntu.com/ubuntu jammy-backports InRelease [127 kB]\n",
-            "Hit:14 https://ppa.launchpadcontent.net/ubuntugis/ppa/ubuntu jammy InRelease\n",
-            "Get:15 https://r2u.stat.illinois.edu/ubuntu jammy/main amd64 Packages [2,807 kB]\n",
-            "Get:16 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 Packages [3,732 kB]\n",
-            "Get:17 http://security.ubuntu.com/ubuntu jammy-security/universe amd64 Packages [1,274 kB]\n",
-            "Get:18 http://archive.ubuntu.com/ubuntu jammy-updates/restricted amd64 Packages [5,899 kB]\n",
-            "Get:19 http://archive.ubuntu.com/ubuntu jammy-updates/universe amd64 Packages [1,580 kB]\n",
-            "Fetched 30.4 MB in 3s (11.7 MB/s)\n",
-            "Reading package lists... Done\n",
-            "W: Skipping acquire of configured file 'main/source/Sources' as repository 'https://r2u.stat.illinois.edu/ubuntu jammy InRelease' does not seem to provide it (sources.list entry misspelt?)\n",
-            "Reading package lists... Done\n",
-            "Building dependency tree... Done\n",
-            "Reading state information... Done\n",
-            "The following additional packages will be installed:\n",
-            "  libdbus-1-dev libpcap0.8 libpcap0.8-dev\n",
-            "The following NEW packages will be installed:\n",
-            "  libdbus-1-dev libpcap-dev libpcap0.8 libpcap0.8-dev\n",
-            "0 upgraded, 4 newly installed, 0 to remove and 51 not upgraded.\n",
-            "Need to get 607 kB of archives.\n",
-            "After this operation, 2,238 kB of additional disk space will be used.\n",
-            "Get:1 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 libpcap0.8 amd64 1.10.1-4ubuntu1.22.04.1 [145 kB]\n",
-            "Get:2 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 libdbus-1-dev amd64 1.12.20-2ubuntu4.1 [188 kB]\n",
-            "Get:3 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 libpcap0.8-dev amd64 1.10.1-4ubuntu1.22.04.1 [270 kB]\n",
-            "Get:4 http://archive.ubuntu.com/ubuntu jammy-updates/main amd64 libpcap-dev amd64 1.10.1-4ubuntu1.22.04.1 [3,326 B]\n",
-            "Fetched 607 kB in 1s (579 kB/s)\n",
-            "Selecting previously unselected package libpcap0.8:amd64.\n",
-            "(Reading database ... 126666 files and directories currently installed.)\n",
-            "Preparing to unpack .../libpcap0.8_1.10.1-4ubuntu1.22.04.1_amd64.deb ...\n",
-            "Unpacking libpcap0.8:amd64 (1.10.1-4ubuntu1.22.04.1) ...\n",
-            "Selecting previously unselected package libdbus-1-dev:amd64.\n",
-            "Preparing to unpack .../libdbus-1-dev_1.12.20-2ubuntu4.1_amd64.deb ...\n",
-            "Unpacking libdbus-1-dev:amd64 (1.12.20-2ubuntu4.1) ...\n",
-            "Selecting previously unselected package libpcap0.8-dev:amd64.\n",
-            "Preparing to unpack .../libpcap0.8-dev_1.10.1-4ubuntu1.22.04.1_amd64.deb ...\n",
-            "Unpacking libpcap0.8-dev:amd64 (1.10.1-4ubuntu1.22.04.1) ...\n",
-            "Selecting previously unselected package libpcap-dev:amd64.\n",
-            "Preparing to unpack .../libpcap-dev_1.10.1-4ubuntu1.22.04.1_amd64.deb ...\n",
-            "Unpacking libpcap-dev:amd64 (1.10.1-4ubuntu1.22.04.1) ...\n",
-            "Setting up libpcap0.8:amd64 (1.10.1-4ubuntu1.22.04.1) ...\n",
-            "Setting up libdbus-1-dev:amd64 (1.12.20-2ubuntu4.1) ...\n",
-            "Setting up libpcap0.8-dev:amd64 (1.10.1-4ubuntu1.22.04.1) ...\n",
-            "Setting up libpcap-dev:amd64 (1.10.1-4ubuntu1.22.04.1) ...\n",
-            "Processing triggers for man-db (2.10.2-1) ...\n",
-            "Processing triggers for libc-bin (2.35-0ubuntu3.8) ...\n",
-            "/sbin/ldconfig.real: /usr/local/lib/libtbbbind_2_5.so.3 is not a symbolic link\n",
-            "\n",
-            "/sbin/ldconfig.real: /usr/local/lib/libtbbmalloc_proxy.so.2 is not a symbolic link\n",
-            "\n",
-            "/sbin/ldconfig.real: /usr/local/lib/libur_adapter_level_zero_v2.so.0 is not a symbolic link\n",
-            "\n",
-            "/sbin/ldconfig.real: /usr/local/lib/libur_loader.so.0 is not a symbolic link\n",
-            "\n",
-            "/sbin/ldconfig.real: /usr/local/lib/libtbb.so.12 is not a symbolic link\n",
-            "\n",
-            "/sbin/ldconfig.real: /usr/local/lib/libtbbbind.so.3 is not a symbolic link\n",
-            "\n",
-            "/sbin/ldconfig.real: /usr/local/lib/libur_adapter_level_zero.so.0 is not a symbolic link\n",
-            "\n",
-            "/sbin/ldconfig.real: /usr/local/lib/libtbbbind_2_0.so.3 is not a symbolic link\n",
-            "\n",
-            "/sbin/ldconfig.real: /usr/local/lib/libur_adapter_opencl.so.0 is not a symbolic link\n",
-            "\n",
-            "/sbin/ldconfig.real: /usr/local/lib/libhwloc.so.15 is not a symbolic link\n",
-            "\n",
-            "/sbin/ldconfig.real: /usr/local/lib/libumf.so.0 is not a symbolic link\n",
-            "\n",
-            "/sbin/ldconfig.real: /usr/local/lib/libtcm_debug.so.1 is not a symbolic link\n",
-            "\n",
-            "/sbin/ldconfig.real: /usr/local/lib/libtcm.so.1 is not a symbolic link\n",
-            "\n",
-            "/sbin/ldconfig.real: /usr/local/lib/libtbbmalloc.so.2 is not a symbolic link\n",
-            "\n"
-          ]
-        }
-      ]
-    },
-    {
-      "cell_type": "code",
-      "source": [
-        "!pip install scapy"
-      ],
-      "metadata": {
-        "colab": {
-          "base_uri": "https://localhost:8080/"
-        },
-        "id": "nd0LSn3gQlWg",
-        "outputId": "2367eed0-a0d9-47b8-badd-275cfe44e507"
-      },
-      "execution_count": 2,
-      "outputs": [
-        {
-          "output_type": "stream",
-          "name": "stdout",
-          "text": [
-            "Collecting scapy\n",
-            "  Downloading scapy-2.6.1-py3-none-any.whl.metadata (5.6 kB)\n",
-            "Downloading scapy-2.6.1-py3-none-any.whl (2.4 MB)\n",
-            "\u001b[2K   \u001b[90m━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\u001b[0m \u001b[32m2.4/2.4 MB\u001b[0m \u001b[31m25.4 MB/s\u001b[0m eta \u001b[36m0:00:00\u001b[0m\n",
-            "\u001b[?25hInstalling collected packages: scapy\n",
-            "Successfully installed scapy-2.6.1\n"
-          ]
-        }
-      ]
-    },
-    {
-      "cell_type": "code",
-      "source": [
-        "\"\"\"\n",
-        "Analisador de Tráfego de Rede com Agregação em Janelas de Tempo\n",
-        "---------------------------------------------------------------\n",
-        "\n",
-        "Este script captura pacotes de rede em uma interface especificada,\n",
-        "agrega os dados em intervalos fixos (5 segundos por padrão) e exporta\n",
-        "os resultados para um arquivo CSV. Os dados armazenados incluem\n",
-        "volume de bytes e número de pacotes de entrada e saída, agrupados\n",
-        "por cliente (IP) e protocolo.\n",
-        "\n",
-        "Utilização:\n",
-        "    - Execute com privilégios de root/admin para capturar pacotes.\n",
-        "    - Ajuste a variável INTERFACE para a interface de rede correta.\n",
-        "    - O script gerará periodicamente o arquivo \"traffic_data.csv\".\n",
-        "    - Esse CSV pode ser consumido por Excel para dashboards dinâmicos.\n",
-        "\n",
-        "Autores:\n",
-        "01: Othon Flávio Alves de Sales - 2312130178\n",
-        "02: Mariana Paiva de Souza Moreira - 2312130137\n",
-        "\"\"\"\n",
-        "\n",
-        "import scapy.all as scapy\n",
-        "import time\n",
-        "import collections\n",
-        "import csv\n",
-        "import threading\n",
-        "from datetime import datetime\n",
-        "\n",
-        "# ==============================\n",
-        "# Configurações do Analisador\n",
-        "# ==============================\n",
-        "\n",
-        "# Intervalo de agregação em segundos (default = 5)\n",
-        "AGGREGATION_INTERVAL = 5\n",
-        "\n",
-        "# Estrutura de dados para tráfego agregado:\n",
-        "# Chave: (timestamp_interval, client_ip, protocol)\n",
-        "# Valor: dicionário contendo bytes/packets de entrada e saída\n",
-        "aggregated_traffic = collections.defaultdict(lambda: {\n",
-        "    'bytes_in': 0,\n",
-        "    'bytes_out': 0,\n",
-        "    'packets_in': 0,\n",
-        "    'packets_out': 0\n",
-        "})\n",
-        "\n",
-        "# Lock garante acesso seguro ao dicionário em ambiente multithread\n",
-        "traffic_lock = threading.Lock()\n",
-        "\n",
-        "# Interface de rede monitorada (ajuste conforme seu ambiente)\n",
-        "INTERFACE = \"eth0\"  # Exemplo: 'eth0', 'wlan0', 'Ethernet'\n",
-        "\n",
-        "# Arquivo CSV de saída\n",
-        "CSV_FILENAME = \"traffic_data.csv\"\n",
-        "\n",
-        "# Cabeçalho do CSV\n",
-        "CSV_HEADERS = [\"Timestamp\", \"Client_IP\", \"Protocol\", \"Bytes_In\", \"Bytes_Out\", \"Packets_In\", \"Packets_Out\"]\n",
-        "\n",
-        "\n",
-        "# ==============================\n",
-        "# Funções Auxiliares\n",
-        "# ==============================\n",
-        "\n",
-        "def get_local_ip():\n",
-        "    \"\"\"\n",
-        "    Obtém o IP associado à interface de rede monitorada.\n",
-        "\n",
-        "    Returns:\n",
-        "        str: Endereço IP da interface especificada.\n",
-        "    \"\"\"\n",
-        "    try:\n",
-        "        return scapy.get_if_addr(INTERFACE)\n",
-        "    except Exception:\n",
-        "        print(f\"AVISO: Não foi possível obter o IP da interface {INTERFACE}. Usando fallback.\")\n",
-        "        # Substitua pelo IP do servidor alvo em seu ambiente\n",
-        "        return \"192.168.1.100\"\n",
-        "\n",
-        "\n",
-        "LOCAL_IP = get_local_ip()\n",
-        "print(f\"IP do Servidor Alvo detectado: {LOCAL_IP}\")\n",
-        "\n",
-        "\n",
-        "def process_packet(packet):\n",
-        "    \"\"\"\n",
-        "    Processa um pacote de rede, determinando se é de entrada ou saída,\n",
-        "    classificando pelo protocolo e acumulando em uma janela de tempo.\n",
-        "\n",
-        "    Args:\n",
-        "        packet (scapy.Packet): Pacote capturado pela interface de rede.\n",
-        "    \"\"\"\n",
-        "    global aggregated_traffic\n",
-        "\n",
-        "    if packet.haslayer(scapy.IP):\n",
-        "        ip_layer = packet.getlayer(scapy.IP)\n",
-        "        src_ip = ip_layer.src\n",
-        "        dst_ip = ip_layer.dst\n",
-        "        packet_size = len(packet)\n",
-        "\n",
-        "        # Identificação do protocolo\n",
-        "        protocol = \"UNKNOWN\"\n",
-        "        if packet.haslayer(scapy.TCP):\n",
-        "            protocol = \"TCP\"\n",
-        "        elif packet.haslayer(scapy.UDP):\n",
-        "            protocol = \"UDP\"\n",
-        "        elif packet.haslayer(scapy.ICMP):\n",
-        "            protocol = \"ICMP\"\n",
-        "        elif packet.haslayer(scapy.ARP):\n",
-        "            # ARP descartado: não faz parte da análise de camada 3\n",
-        "            return\n",
-        "\n",
-        "        # Alinhamento do timestamp para a janela de agregação\n",
-        "        current_time = int(time.time())\n",
-        "        timestamp_interval = (current_time // AGGREGATION_INTERVAL) * AGGREGATION_INTERVAL\n",
-        "\n",
-        "        with traffic_lock:\n",
-        "            # Caso 1: Tráfego de saída do servidor alvo\n",
-        "            if src_ip == LOCAL_IP:\n",
-        "                client_ip = dst_ip\n",
-        "                key = (timestamp_interval, client_ip, protocol)\n",
-        "\n",
-        "                aggregated_traffic[key]['bytes_out'] += packet_size\n",
-        "                aggregated_traffic[key]['packets_out'] += 1\n",
-        "\n",
-        "            # Caso 2: Tráfego de entrada para o servidor alvo\n",
-        "            elif dst_ip == LOCAL_IP:\n",
-        "                client_ip = src_ip\n",
-        "                key = (timestamp_interval, client_ip, protocol)\n",
-        "\n",
-        "                aggregated_traffic[key]['bytes_in'] += packet_size\n",
-        "                aggregated_traffic[key]['packets_in'] += 1\n",
-        "\n",
-        "\n",
-        "def start_sniffing():\n",
-        "    \"\"\"\n",
-        "    Inicia a captura de pacotes em tempo real na interface definida.\n",
-        "    \"\"\"\n",
-        "    print(f\"Iniciando a captura na interface {INTERFACE}...\")\n",
-        "    try:\n",
-        "        scapy.sniff(iface=INTERFACE, prn=process_packet, store=0, filter=\"ip\")\n",
-        "    except Exception as e:\n",
-        "        print(f\"ERRO FATAL: {e}\")\n",
-        "        print(\"Sugestão: execute com sudo/admin.\")\n",
-        "\n",
-        "\n",
-        "def write_to_csv():\n",
-        "    \"\"\"\n",
-        "    Thread responsável por escrever periodicamente os dados agregados\n",
-        "    no arquivo CSV, a cada intervalo definido.\n",
-        "    \"\"\"\n",
-        "    global aggregated_traffic\n",
-        "\n",
-        "    # Inicializa o CSV com cabeçalho\n",
-        "    with open(CSV_FILENAME, 'w', newline='') as csvfile:\n",
-        "        writer = csv.writer(csvfile)\n",
-        "        writer.writerow(CSV_HEADERS)\n",
-        "\n",
-        "    while True:\n",
-        "        time.sleep(AGGREGATION_INTERVAL)\n",
-        "\n",
-        "        current_time = int(time.time())\n",
-        "        # Seleciona apenas o intervalo que acabou de fechar\n",
-        "        timestamp_to_process = (current_time // AGGREGATION_INTERVAL) * AGGREGATION_INTERVAL - AGGREGATION_INTERVAL\n",
-        "\n",
-        "        data_to_write = []\n",
-        "        with traffic_lock:\n",
-        "            keys_to_remove = []\n",
-        "            for key, values in aggregated_traffic.items():\n",
-        "                if key[0] == timestamp_to_process:\n",
-        "                    timestamp_dt = datetime.fromtimestamp(key[0])\n",
-        "                    data_to_write.append([\n",
-        "                        timestamp_dt.strftime(\"%Y-%m-%d %H:%M:%S\"),\n",
-        "                        key[1],  # Client_IP\n",
-        "                        key[2],  # Protocol\n",
-        "                        values['bytes_in'],\n",
-        "                        values['bytes_out'],\n",
-        "                        values['packets_in'],\n",
-        "                        values['packets_out']\n",
-        "                    ])\n",
-        "                    keys_to_remove.append(key)\n",
-        "\n",
-        "            # Limpa entradas já processadas\n",
-        "            for key in keys_to_remove:\n",
-        "                del aggregated_traffic[key]\n",
-        "\n",
-        "        # Grava no CSV\n",
-        "        if data_to_write:\n",
-        "            try:\n",
-        "                with open(CSV_FILENAME, 'a', newline='') as csvfile:\n",
-        "                    writer = csv.writer(csvfile)\n",
-        "                    writer.writerows(data_to_write)\n",
-        "                print(f\"Dados agregados ({datetime.fromtimestamp(timestamp_to_process).strftime('%H:%M:%S')}) gravados em {CSV_FILENAME}\")\n",
-        "            except Exception as e:\n",
-        "                print(f\"Erro ao escrever no CSV: {e}\")\n",
-        "\n",
-        "\n",
-        "# ==============================\n",
-        "# Execução Principal\n",
-        "# ==============================\n",
-        "if __name__ == \"__main__\":\n",
-        "    # Thread de captura de pacotes\n",
-        "    sniff_thread = threading.Thread(target=start_sniffing)\n",
-        "    sniff_thread.daemon = True\n",
-        "    sniff_thread.start()\n",
-        "\n",
-        "    # Thread de escrita CSV\n",
-        "    csv_writer_thread = threading.Thread(target=write_to_csv)\n",
-        "    csv_writer_thread.daemon = True\n",
-        "    csv_writer_thread.start()\n",
-        "\n",
-        "    print(f\"Analisador iniciado | Intervalo: {AGGREGATION_INTERVAL}s\")\n",
-        "    print(f\"Servidor alvo: {LOCAL_IP} | Saída: {CSV_FILENAME}\")\n",
-        "    print(\"Pressione Ctrl+C para encerrar.\")\n",
-        "\n",
-        "    try:\n",
-        "        while True:\n",
-        "            time.sleep(1)\n",
-        "    except KeyboardInterrupt:\n",
-        "        print(\"\\nExecução interrompida. CSV finalizado.\")\n"
-      ],
-      "metadata": {
-        "colab": {
-          "base_uri": "https://localhost:8080/"
-        },
-        "id": "jiu47aBMxqwO",
-        "outputId": "8d5edf4f-288a-4416-a81e-ea16714d743b"
-      },
-      "execution_count": 4,
-      "outputs": [
-        {
-          "output_type": "stream",
-          "name": "stdout",
-          "text": [
-            "IP do Servidor Alvo detectado: 172.28.0.12\n",
-            "Iniciando a captura na interface eth0...\n",
-            "Analisador iniciado | Intervalo: 5s\n",
-            "Servidor alvo: 172.28.0.12 | Saída: traffic_data.csv\n",
-            "Pressione Ctrl+C para encerrar.\n",
-            "\n",
-            "Execução interrompida. CSV finalizado.\n"
-          ]
-        }
-      ]
-    }
-  ]
-}
+"""
+Analisador de Tráfego de Rede com Agregação em Janelas de Tempo
+---------------------------------------------------------------
+
+Este script captura pacotes de rede em uma interface especificada,
+agrega os dados em intervalos fixos (5 segundos por padrão) e exporta
+os resultados para um arquivo CSV. Os dados armazenados incluem
+volume de bytes e número de pacotes de entrada e saída, agrupados
+por cliente (IP) e protocolo.
+
+Utilização:
+    - Execute com privilégios de root/admin para capturar pacotes.
+    - Ajuste a variável INTERFACE para a interface de rede correta.
+    - O script gerará periodicamente o arquivo "traffic_data.csv".
+    - Esse CSV pode ser consumido por Excel para dashboards dinâmicos.
+
+Autores:
+01: Othon Flávio Alves de Sales - 2312130178
+02: Mariana Paiva de Souza Moreira - 2312130137
+"""
+
+#Executar primeiro:
+# Instala o pacote de desenvolvimento libpcap que o Scapy precisa
+# !apt-get update && apt-get install -y libpcap-dev
+
+#Após isso, execute:
+# !pip install scapy
+
+#Algoritmo:
+import scapy.all as scapy
+import time
+import collections
+import csv
+import threading
+from datetime import datetime
+
+# ==============================
+# Configurações do Analisador
+# ==============================
+
+# Intervalo de agregação em segundos (default = 5)
+AGGREGATION_INTERVAL = 5
+
+# Estrutura de dados para tráfego agregado:
+# Chave: (timestamp_interval, client_ip, protocol)
+# Valor: dicionário contendo bytes/packets de entrada e saída
+aggregated_traffic = collections.defaultdict(lambda: {
+    'bytes_in': 0,
+    'bytes_out': 0,
+    'packets_in': 0,
+    'packets_out': 0
+})
+
+# Lock garante acesso seguro ao dicionário em ambiente multithread
+traffic_lock = threading.Lock()
+
+# Interface de rede monitorada (ajuste conforme seu ambiente)
+INTERFACE = "eth0"  # Exemplo: 'eth0', 'wlan0', 'Ethernet'
+
+# Arquivo CSV de saída
+CSV_FILENAME = "traffic_data.csv"
+
+# Cabeçalho do CSV
+CSV_HEADERS = ["Timestamp", "Client_IP", "Protocol", "Bytes_In", "Bytes_Out", "Packets_In", "Packets_Out"]
+
+
+# ==============================
+# Funções Auxiliares
+# ==============================
+
+def get_local_ip():
+    """
+    Obtém o IP associado à interface de rede monitorada.
+
+    Returns:
+        str: Endereço IP da interface especificada.
+    """
+    try:
+        return scapy.get_if_addr(INTERFACE)
+    except Exception:
+        print(f"AVISO: Não foi possível obter o IP da interface {INTERFACE}. Usando fallback.")
+        # Substitua pelo IP do servidor alvo em seu ambiente
+        return "192.168.1.100"
+
+
+LOCAL_IP = get_local_ip()
+print(f"IP do Servidor Alvo detectado: {LOCAL_IP}")
+
+
+def process_packet(packet):
+    """
+    Processa um pacote de rede, determinando se é de entrada ou saída,
+    classificando pelo protocolo e acumulando em uma janela de tempo.
+
+    Args:
+        packet (scapy.Packet): Pacote capturado pela interface de rede.
+    """
+    global aggregated_traffic
+
+    if packet.haslayer(scapy.IP):
+        ip_layer = packet.getlayer(scapy.IP)
+        src_ip = ip_layer.src
+        dst_ip = ip_layer.dst
+        packet_size = len(packet)
+
+        # Identificação do protocolo
+        protocol = "UNKNOWN"
+        if packet.haslayer(scapy.TCP):
+            protocol = "TCP"
+        elif packet.haslayer(scapy.UDP):
+            protocol = "UDP"
+        elif packet.haslayer(scapy.ICMP):
+            protocol = "ICMP"
+        elif packet.haslayer(scapy.ARP):
+            # ARP descartado: não faz parte da análise de camada 3
+            return
+
+        # Alinhamento do timestamp para a janela de agregação
+        current_time = int(time.time())
+        timestamp_interval = (current_time // AGGREGATION_INTERVAL) * AGGREGATION_INTERVAL
+
+        with traffic_lock:
+            # Caso 1: Tráfego de saída do servidor alvo
+            if src_ip == LOCAL_IP:
+                client_ip = dst_ip
+                key = (timestamp_interval, client_ip, protocol)
+
+                aggregated_traffic[key]['bytes_out'] += packet_size
+                aggregated_traffic[key]['packets_out'] += 1
+
+            # Caso 2: Tráfego de entrada para o servidor alvo
+            elif dst_ip == LOCAL_IP:
+                client_ip = src_ip
+                key = (timestamp_interval, client_ip, protocol)
+
+                aggregated_traffic[key]['bytes_in'] += packet_size
+                aggregated_traffic[key]['packets_in'] += 1
+
+
+def start_sniffing():
+    """
+    Inicia a captura de pacotes em tempo real na interface definida.
+    """
+    print(f"Iniciando a captura na interface {INTERFACE}...")
+    try:
+        scapy.sniff(iface=INTERFACE, prn=process_packet, store=0, filter="ip")
+    except Exception as e:
+        print(f"ERRO FATAL: {e}")
+        print("Sugestão: execute com sudo/admin.")
+
+
+def write_to_csv():
+    """
+    Thread responsável por escrever periodicamente os dados agregados
+    no arquivo CSV, a cada intervalo definido.
+    """
+    global aggregated_traffic
+
+    # Inicializa o CSV com cabeçalho
+    with open(CSV_FILENAME, 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        writer.writerow(CSV_HEADERS)
+
+    while True:
+        time.sleep(AGGREGATION_INTERVAL)
+
+        current_time = int(time.time())
+        # Seleciona apenas o intervalo que acabou de fechar
+        timestamp_to_process = (current_time // AGGREGATION_INTERVAL) * AGGREGATION_INTERVAL - AGGREGATION_INTERVAL
+
+        data_to_write = []
+        with traffic_lock:
+            keys_to_remove = []
+            for key, values in aggregated_traffic.items():
+                if key[0] == timestamp_to_process:
+                    timestamp_dt = datetime.fromtimestamp(key[0])
+                    data_to_write.append([
+                        timestamp_dt.strftime("%Y-%m-%d %H:%M:%S"),
+                        key[1],  # Client_IP
+                        key[2],  # Protocol
+                        values['bytes_in'],
+                        values['bytes_out'],
+                        values['packets_in'],
+                        values['packets_out']
+                    ])
+                    keys_to_remove.append(key)
+
+            # Limpa entradas já processadas
+            for key in keys_to_remove:
+                del aggregated_traffic[key]
+
+        # Grava no CSV
+        if data_to_write:
+            try:
+                with open(CSV_FILENAME, 'a', newline='') as csvfile:
+                    writer = csv.writer(csvfile)
+                    writer.writerows(data_to_write)
+                print(f"Dados agregados ({datetime.fromtimestamp(timestamp_to_process).strftime('%H:%M:%S')}) gravados em {CSV_FILENAME}")
+            except Exception as e:
+                print(f"Erro ao escrever no CSV: {e}")
+
+
+# ==============================
+# Execução Principal
+# ==============================
+if __name__ == "__main__":
+    # Thread de captura de pacotes
+    sniff_thread = threading.Thread(target=start_sniffing)
+    sniff_thread.daemon = True
+    sniff_thread.start()
+
+    # Thread de escrita CSV
+    csv_writer_thread = threading.Thread(target=write_to_csv)
+    csv_writer_thread.daemon = True
+    csv_writer_thread.start()
+
+    print(f"Analisador iniciado | Intervalo: {AGGREGATION_INTERVAL}s")
+    print(f"Servidor alvo: {LOCAL_IP} | Saída: {CSV_FILENAME}")
+    print("Pressione Ctrl+C para encerrar.")
+
+    try:
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        print("\nExecução interrompida. CSV finalizado.")
